@@ -61,7 +61,12 @@ function Confirmation() {
           className="mt-6 w-full max-w-sm space-y-3 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <Button variant="hero" size="xl" className="w-full font-display text-sm">
+          <Button
+            variant="hero"
+            size="xl"
+            className="w-full font-display text-sm"
+            onClick={() => navigate({ to: "/messages" })}
+          >
             Go to Messages
             <ArrowRight className="h-4 w-4" />
           </Button>

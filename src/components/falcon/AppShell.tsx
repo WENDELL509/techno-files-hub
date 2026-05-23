@@ -18,7 +18,7 @@ export const AppShell = ({
     { icon: Home, to: "/", match: (p) => p === "/", label: "Home" },
     { icon: Search, to: "/", match: () => false, label: "Search" },
     { icon: MapPin, to: "/firm/vedua", match: (p) => p.startsWith("/firm"), label: "Firms" },
-    { icon: MessageCircle, to: "/confirmation", match: (p) => p === "/confirmation", label: "Messages" },
+    { icon: MessageCircle, to: "/messages", match: (p) => p.startsWith("/messages"), label: "Messages" },
     { icon: User, to: "/", match: () => false, label: "Profile" },
   ];
 
