@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Upload, FileText, BadgeCheck, Zap, Calendar as CalendarIcon, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Upload, FileText, BadgeCheck, Zap, Calendar as CalendarIcon, Sun, Moon, Receipt, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { AppShell } from "@/components/falcon/AppShell";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SurveyPricingEngine, formatPHP } from "@/lib/pricing-engine";
 import { useBooking } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import type { ReactNode, InputHTMLAttributes } from "react";
@@ -41,6 +49,36 @@ function BookingForm() {
   const [timeOfDay, setTimeOfDay] = useState<"Morning" | "Afternoon">("Morning");
   const [date, setDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState("");
+
+  const quote = useMemo(() => {
+    try {
+      return SurveyPricingEngine.generateProjectQuote({
+        surveyType: "RELOCATION_SURVEY",
+        areaInHectares: 12.5,
+        landUseType: "COMMERCIAL",
+        topoInterval: 0.5,
+        slopeDegrees: 22,
+        disbursements: 4500,
+        isHighRiskZone: true,
+      });
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const billingRows = quote
+    ? [
+        ["Boundary Survey Fee", quote.breakdown.baseSurveyFee],
+        ["Zoning Adjustment Modifier", quote.breakdown.zoningAdjustment],
+        ["Contour Mapping", quote.breakdown.topographicCost],
+        ["Terrain Complexity Penalty", quote.breakdown.hazardPay],
+        ["Document Filing Disbursements", quote.breakdown.disbursementsOverhead],
+        ["System Establishment Fee", quote.breakdown.establishmentFee],
+        ["Project Contingency Buffer", quote.breakdown.contingencyBuffer],
+        ["Corporate Profit Margin", quote.breakdown.firmProfit],
+        ["VAT (12%)", quote.breakdown.statutoryVat],
+      ] as const
+    : [];
 
   const goBack = () => {
     if (step === 2) {
@@ -270,6 +308,61 @@ function BookingForm() {
               ))}
             </div>
           </Field>
+
+          {quote && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="w-full rounded-2xl border border-primary/40 bg-card p-4 flex items-center justify-between shadow-pin hover:bg-primary/5 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center">
+                      <Receipt className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-poppins">
+                        Estimated Subtotal
+                      </p>
+                      <p className="font-display text-base text-primary">
+                        {formatPHP(quote.totalContractPrice)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-poppins text-muted-foreground">
+                    View breakdown
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="font-display text-primary">Billing Breakdown</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 divide-y divide-border">
+                  {billingRows.map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between py-3">
+                      <span className="text-sm font-poppins text-foreground/80">{label}</span>
+                      <span className="text-sm font-poppins font-medium">{formatPHP(value as number)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 rounded-2xl gradient-primary p-4 flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest text-primary-foreground/80 font-poppins">
+                    Total Project Cost
+                  </span>
+                  <span className="font-display text-lg text-primary-foreground">
+                    {formatPHP(quote.totalContractPrice)}
+                  </span>
+                </div>
+                <p className="mt-3 text-[10px] text-muted-foreground font-poppins text-center">
+                  Computed per GEPI regional tariff. Final amount may vary with verified land details.
+                </p>
+              </SheetContent>
+            </Sheet>
+          )}
+
+
 
           <Field label="Additional Notes">
             <Textarea
