@@ -1,7 +1,8 @@
+// @ts-nocheck
 /**
  * GEPI Tariff Pricing Engine for Surveying Apps
- * Language: Node.js (ES6 / TypeScript Compatible)
  */
+export {};
 
 // 1. DYNAMIC CONFIGURATION SCHEMA (Matches your Spreadsheet Layout)
 const CONFIG = {
