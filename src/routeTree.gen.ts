@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FirmIdRouteImport } from './routes/firm.$id'
 import { Route as FirmIdBookRouteImport } from './routes/firm.$id.book'
 
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfirmationRoute = ConfirmationRouteImport.update({
   id: '/confirmation',
   path: '/confirmation',
@@ -38,12 +44,14 @@ const FirmIdBookRoute = FirmIdBookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
+  '/messages': typeof MessagesRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
+  '/messages': typeof MessagesRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
@@ -51,25 +59,45 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
+  '/messages': typeof MessagesRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
+  fullPaths:
+    | '/'
+    | '/confirmation'
+    | '/messages'
+    | '/firm/$id'
+    | '/firm/$id/book'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
-  id: '__root__' | '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
+  to: '/' | '/confirmation' | '/messages' | '/firm/$id' | '/firm/$id/book'
+  id:
+    | '__root__'
+    | '/'
+    | '/confirmation'
+    | '/messages'
+    | '/firm/$id'
+    | '/firm/$id/book'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfirmationRoute: typeof ConfirmationRoute
+  MessagesRoute: typeof MessagesRoute
   FirmIdRoute: typeof FirmIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/confirmation': {
       id: '/confirmation'
       path: '/confirmation'
@@ -115,8 +143,19 @@ const FirmIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfirmationRoute: ConfirmationRoute,
+  MessagesRoute: MessagesRoute,
   FirmIdRoute: FirmIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

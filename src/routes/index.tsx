@@ -4,7 +4,7 @@ import { Search, MapPin, Star, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AppShell } from "@/components/falcon/AppShell";
-import { FalconMap } from "@/components/falcon/FalconMap";
+import { GoogleMap } from "@/components/falcon/GoogleMap";
 import { FIRMS, FILTERS, DAVAO_CENTER, type Category } from "@/lib/firms";
 
 export const Route = createFileRoute("/")({
@@ -43,7 +43,7 @@ function MapSearch() {
     <AppShell>
       <h1 className="sr-only">Find a surveying firm in Davao</h1>
       <div className="relative h-[55vh]">
-        <FalconMap
+        <GoogleMap
           markers={filtered.map((f) => ({ id: f.id, name: f.name, lat: f.lat, lng: f.lng }))}
           center={DAVAO_CENTER}
           onMarkerClick={(id) => navigate({ to: "/firm/$id", params: { id } })}
