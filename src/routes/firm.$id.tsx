@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, createFileRoute, useLocation, useNavigate, notFound } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation, useNavigate, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Phone, Mail, MapPin, Clock, Star, Share2, Mail as MailIcon, HardHat, Settings, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -255,16 +255,28 @@ function FirmProfile() {
       <div className="h-32" />
 
       {/* Booking CTA */}
-      <div className="sticky bottom-20 z-50 px-5 pb-3 pointer-events-none">
+      <div className="fixed bottom-24 left-1/2 z-[70] w-full max-w-[440px] -translate-x-1/2 px-5 pb-3 pointer-events-none">
         <div className="pointer-events-auto">
           <Button
+            asChild
             variant="hero"
             size="xl"
             className="w-full font-display text-sm shadow-pin"
-            onClick={onBook}
             disabled={selected.length === 0}
           >
-            Book a Request {selected.length > 0 && `· ${selected.length}`}
+            <Link
+              to="/firm/$id/book"
+              params={{ id: firm.id }}
+              onClick={(event) => {
+                if (selected.length === 0) {
+                  event.preventDefault();
+                  return;
+                }
+                onBook();
+              }}
+            >
+              Book a Request {selected.length > 0 && `· ${selected.length}`}
+            </Link>
           </Button>
         </div>
       </div>
