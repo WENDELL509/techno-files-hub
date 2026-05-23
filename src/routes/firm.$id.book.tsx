@@ -50,6 +50,36 @@ function BookingForm() {
   const [date, setDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState("");
 
+  const quote = useMemo(() => {
+    try {
+      return SurveyPricingEngine.generateProjectQuote({
+        surveyType: "RELOCATION_SURVEY",
+        areaInHectares: 12.5,
+        landUseType: "COMMERCIAL",
+        topoInterval: 0.5,
+        slopeDegrees: 22,
+        disbursements: 4500,
+        isHighRiskZone: true,
+      });
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const billingRows = quote
+    ? [
+        ["Boundary Survey Fee", quote.breakdown.baseSurveyFee],
+        ["Zoning Adjustment Modifier", quote.breakdown.zoningAdjustment],
+        ["Contour Mapping", quote.breakdown.topographicCost],
+        ["Terrain Complexity Penalty", quote.breakdown.hazardPay],
+        ["Document Filing Disbursements", quote.breakdown.disbursementsOverhead],
+        ["System Establishment Fee", quote.breakdown.establishmentFee],
+        ["Project Contingency Buffer", quote.breakdown.contingencyBuffer],
+        ["Corporate Profit Margin", quote.breakdown.firmProfit],
+        ["VAT (12%)", quote.breakdown.statutoryVat],
+      ] as const
+    : [];
+
   const goBack = () => {
     if (step === 2) {
       setStep(1);
