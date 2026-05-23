@@ -322,18 +322,4 @@ function displayQuote(quote) {
 }
 
 
-// ======================================
-// SAMPLE EXECUTION
-// ======================================
-
-const commercialQuote = SurveyPricingEngine.generateProjectQuote({
-  surveyType: 'RELOCATION_SURVEY',
-  areaInHectares: 12.5,
-  landUseType: 'COMMERCIAL',
-  topoInterval: 0.5,
-  slopeDegrees: 22,
-  disbursements: 4500,
-  isHighRiskZone: true
-});
-
-displayQuote(commercialQuote);
+export { formatPHP };
