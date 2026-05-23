@@ -74,7 +74,7 @@ function Confirmation() {
             variant="ghost"
             size="lg"
             className="w-full font-poppins"
-            onClick={() => navigate({ to: "/" })}
+            onClick={() => navigate({ to: "/search" })}
           >
             Back to Map
           </Button>

@@ -16,7 +16,7 @@ export const AppShell = ({
 
   const tabs: { icon: typeof Home; to: string; match: (p: string) => boolean; label: string }[] = [
     { icon: Home, to: "/", match: (p) => p === "/", label: "Home" },
-    { icon: Search, to: "/", match: () => false, label: "Search" },
+    { icon: Search, to: "/search", match: (p) => p.startsWith("/search"), label: "Search" },
     { icon: MapPin, to: "/firm/vedua", match: (p) => p.startsWith("/firm"), label: "Firms" },
     { icon: MessageCircle, to: "/messages", match: (p) => p.startsWith("/messages"), label: "Messages" },
     { icon: User, to: "/", match: () => false, label: "Profile" },
