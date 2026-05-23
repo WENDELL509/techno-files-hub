@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FirmIdRouteImport } from './routes/firm.$id'
 import { Route as FirmIdBookRouteImport } from './routes/firm.$id.book'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
   '/messages': typeof MessagesRoute
+  '/search': typeof SearchRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
   '/messages': typeof MessagesRoute
+  '/search': typeof SearchRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/confirmation': typeof ConfirmationRoute
   '/messages': typeof MessagesRoute
+  '/search': typeof SearchRoute
   '/firm/$id': typeof FirmIdRouteWithChildren
   '/firm/$id/book': typeof FirmIdBookRoute
 }
@@ -69,15 +78,23 @@ export interface FileRouteTypes {
     | '/'
     | '/confirmation'
     | '/messages'
+    | '/search'
     | '/firm/$id'
     | '/firm/$id/book'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/confirmation' | '/messages' | '/firm/$id' | '/firm/$id/book'
+  to:
+    | '/'
+    | '/confirmation'
+    | '/messages'
+    | '/search'
+    | '/firm/$id'
+    | '/firm/$id/book'
   id:
     | '__root__'
     | '/'
     | '/confirmation'
     | '/messages'
+    | '/search'
     | '/firm/$id'
     | '/firm/$id/book'
   fileRoutesById: FileRoutesById
@@ -86,11 +103,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfirmationRoute: typeof ConfirmationRoute
   MessagesRoute: typeof MessagesRoute
+  SearchRoute: typeof SearchRoute
   FirmIdRoute: typeof FirmIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages': {
       id: '/messages'
       path: '/messages'
@@ -144,6 +169,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfirmationRoute: ConfirmationRoute,
   MessagesRoute: MessagesRoute,
+  SearchRoute: SearchRoute,
   FirmIdRoute: FirmIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
