@@ -155,16 +155,113 @@ function FirmProfile() {
         </div>
       </div>
 
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-[440px] px-5 z-40">
+      {/* Status Tracker */}
+      <div className="px-5 mt-8">
+        <h2 className="font-display text-base mb-3">Status</h2>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: "Received", icon: MailIcon },
+            { label: "Conduct Field", icon: HardHat },
+            { label: "Processing", icon: Settings },
+            { label: "Done", icon: Package },
+          ].map((s, i) => {
+            const Icon = s.icon;
+            const reached = i <= currentStatus;
+            return (
+              <div key={s.label} className="flex flex-col items-center gap-2">
+                <div
+                  className={cn(
+                    "h-12 w-12 rounded-2xl flex items-center justify-center border",
+                    reached
+                      ? "gradient-primary border-transparent shadow-pin"
+                      : "bg-secondary/50 border-border",
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-5 w-5",
+                      reached ? "text-primary-foreground" : "text-muted-foreground",
+                    )}
+                  />
+                </div>
+                <span className="text-[10px] font-poppins text-center text-foreground/80 leading-tight">
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Rate */}
+      <div className="px-5 mt-7">
+        <h2 className="font-display text-base mb-3">Rate</h2>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
+          {(["Punctuality", "Professionalism", "Service"] as const).map((k) => (
+            <div key={k} className="flex items-center justify-between p-3">
+              <span className="text-sm font-poppins text-foreground">{k}</span>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setRatings((p) => ({ ...p, [k]: n }))}
+                    aria-label={`${k} ${n} star`}
+                  >
+                    <Star
+                      className={cn(
+                        "h-5 w-5 transition-colors",
+                        n <= ratings[k]
+                          ? "text-primary fill-current"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Feedback */}
+      <div className="px-5 mt-7">
+        <h2 className="font-display text-base mb-3">Feedback</h2>
+        <Textarea
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+          placeholder="Share your experience with this firm..."
+          className="min-h-[100px] rounded-2xl bg-input border-border font-poppins"
+        />
         <Button
-          variant="hero"
-          size="xl"
-          className="w-full font-display text-sm"
-          onClick={onBook}
-          disabled={selected.length === 0}
+          variant="outline"
+          className="w-full mt-3 font-poppins"
+          onClick={() => {
+            toast.success("Feedback submitted", {
+              description: "Thanks for rating this firm.",
+            });
+            setFeedback("");
+          }}
         >
-          Book a Request {selected.length > 0 && `· ${selected.length}`}
+          Submit Feedback
         </Button>
+      </div>
+
+      {/* Bottom spacer so sticky CTA doesn't cover content */}
+      <div className="h-32" />
+
+      {/* Booking CTA */}
+      <div className="sticky bottom-20 z-50 px-5 pb-3 pointer-events-none">
+        <div className="pointer-events-auto">
+          <Button
+            variant="hero"
+            size="xl"
+            className="w-full font-display text-sm shadow-pin"
+            onClick={onBook}
+            disabled={selected.length === 0}
+          >
+            Book a Request {selected.length > 0 && `· ${selected.length}`}
+          </Button>
+        </div>
       </div>
     </AppShell>
   );
