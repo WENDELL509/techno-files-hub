@@ -1,32 +1,29 @@
-## Scope (simplified per your feedback)
+# Plan
 
-Two small changes — no full chat system, just wire up the navigation and swap in real Google Maps.
+## 1. Fix the dead "Book a Request" button (`src/routes/firm.$id.tsx`)
 
-### 1. Messages page (just a destination for "Go to Messages")
+The button is rendered as `fixed bottom-20` and sits behind the AppShell bottom nav / gradient overlays, so clicks don't register. Fix:
 
-- **New route `src/routes/messages.tsx`** — a simple inbox screen:
-  - AppShell with header "Messages"
-  - List of message threads, one per firm from `FIRMS` (firm logo/initial, name, engineer, last-message preview, time, unread dot)
-  - Tapping a row goes to `/firm/$id` (no separate thread view needed for this prototype)
-  - Empty-state friendly styling that matches the dark/orange theme
-- **Hook up Confirmation's "Go to Messages" button** → `navigate({ to: "/messages" })`.
-- **Hook up the bottom-nav chat icon** in `AppShell` → `/messages`.
-- No store changes, no real chat composer — threads are static seed data.
+- Move the CTA out of `position: fixed` and into a sticky footer inside the scroll container (`sticky bottom-20 z-50`), or wrap it in a `pointer-events-auto` container with proper stacking above the bottom tab bar.
+- Keep the same `onBook` handler (already wired to `bookingStore.set` + `navigate({ to: "/firm/$id/book", params: { id } })`) — no logic change needed, just make it clickable.
+- Add extra bottom padding to the page content so the sticky CTA doesn't cover the last section.
 
-### 2. Real Google Maps on the home screen
+(The uploaded `BookingForm.tsx` uses `react-router-dom` and an old store path — the current `firm.$id.book.tsx` already mirrors its content using TanStack Router + `@/lib/booking`, so no need to re-port that file. The fix is purely the parent firm page's CTA.)
 
-- **New component `src/components/falcon/GoogleMap.tsx`** — port the original component:
-  - Loads Maps JS API async via the Lovable Google Maps connector browser key
-    (`VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY` + `&channel=…TRACKING_ID`, `loading=async&callback=initFalconMap`)
-  - Applies a dark navy style so it matches the Falcon theme
-  - Uses `google.maps.Marker` with an orange circle symbol per firm (no `mapId`, no AdvancedMarkerElement)
-  - Centered on Davao (`7.0731, 125.6128`), zoom 13
-  - Clicking a marker calls `onMarkerClick(id)`
-- **Connect** the `google_maps` connector so the key env vars are injected.
-- **Swap** `src/routes/index.tsx` to use the new `GoogleMap` instead of `FalconMap`. `FalconMap.tsx` stays as a silent fallback if the script fails to load.
+## 2. Add Ratings & Feedback section to firm profile (`src/routes/firm.$id.tsx`)
 
-### Out of scope
+Based on image-9, append a new section above the CTA on the firm profile page that shows:
 
-- Real chat messages, composer, persistence, notifications.
-- Geocoding / directions / Places search.
-- Any change to the booking form flow itself (it already navigates correctly to Confirmation).
+- **Status tracker** — 4 stages (Received · Conduct Field · Processing · Done) with icons, rendered as a horizontal stepper using existing design tokens.
+- **Rate** block — three rows (Punctuality, Professionalism, Service) each with an interactive 5-star control (lucide `Star`, toggled state, `text-primary fill-current` when active).
+- **Feedback** block — a `Textarea` (shadcn) with a "Submit Feedback" button.
+
+State is local (`useState` for each rating + feedback string); submit triggers a toast (`sonner`) — no backend wiring since user only asked for the UI to appear.
+
+## Files touched
+- `src/routes/firm.$id.tsx` — fix CTA positioning, add Status/Rate/Feedback sections.
+
+## Out of scope
+- Persisting ratings to a database.
+- Restyling the booking form itself.
+- Touching `AppShell`, route tree, or other pages.
