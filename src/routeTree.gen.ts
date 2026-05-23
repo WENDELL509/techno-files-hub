@@ -9,38 +9,74 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FirmIdRouteImport } from './routes/firm.$id'
+import { Route as FirmIdBookRouteImport } from './routes/firm.$id.book'
 
+const ConfirmationRoute = ConfirmationRouteImport.update({
+  id: '/confirmation',
+  path: '/confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FirmIdRoute = FirmIdRouteImport.update({
+  id: '/firm/$id',
+  path: '/firm/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FirmIdBookRoute = FirmIdBookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => FirmIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
+  '/firm/$id': typeof FirmIdRouteWithChildren
+  '/firm/$id/book': typeof FirmIdBookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
+  '/firm/$id': typeof FirmIdRouteWithChildren
+  '/firm/$id/book': typeof FirmIdBookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
+  '/firm/$id': typeof FirmIdRouteWithChildren
+  '/firm/$id/book': typeof FirmIdBookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
+  id: '__root__' | '/' | '/confirmation' | '/firm/$id' | '/firm/$id/book'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfirmationRoute: typeof ConfirmationRoute
+  FirmIdRoute: typeof FirmIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/confirmation': {
+      id: '/confirmation'
+      path: '/confirmation'
+      fullPath: '/confirmation'
+      preLoaderRoute: typeof ConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +84,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/firm/$id': {
+      id: '/firm/$id'
+      path: '/firm/$id'
+      fullPath: '/firm/$id'
+      preLoaderRoute: typeof FirmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/firm/$id/book': {
+      id: '/firm/$id/book'
+      path: '/book'
+      fullPath: '/firm/$id/book'
+      preLoaderRoute: typeof FirmIdBookRouteImport
+      parentRoute: typeof FirmIdRoute
+    }
   }
 }
 
+interface FirmIdRouteChildren {
+  FirmIdBookRoute: typeof FirmIdBookRoute
+}
+
+const FirmIdRouteChildren: FirmIdRouteChildren = {
+  FirmIdBookRoute: FirmIdBookRoute,
+}
+
+const FirmIdRouteWithChildren =
+  FirmIdRoute._addFileChildren(FirmIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfirmationRoute: ConfirmationRoute,
+  FirmIdRoute: FirmIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
