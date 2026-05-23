@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useLocation, useNavigate, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Phone, Mail, MapPin, Clock, Star, Share2, Mail as MailIcon, HardHat, Settings, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -44,6 +44,7 @@ export const Route = createFileRoute("/firm/$id")({
 
 function FirmProfile() {
   const { firm } = Route.useLoaderData();
+  const location = useLocation();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string[]>(firm.services.slice(0, 2));
   const [ratings, setRatings] = useState<{ Punctuality: number; Professionalism: number; Service: number }>({
@@ -61,6 +62,10 @@ function FirmProfile() {
     bookingStore.set({ selectedSurveys: selected, firmId: firm.id });
     navigate({ to: "/firm/$id/book", params: { id: firm.id } });
   };
+
+  if (location.pathname.endsWith("/book")) {
+    return <Outlet />;
+  }
 
   return (
     <AppShell hideTopBar>
