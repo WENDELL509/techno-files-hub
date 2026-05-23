@@ -46,6 +46,13 @@ function FirmProfile() {
   const { firm } = Route.useLoaderData();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string[]>(firm.services.slice(0, 2));
+  const [ratings, setRatings] = useState<{ Punctuality: number; Professionalism: number; Service: number }>({
+    Punctuality: 0,
+    Professionalism: 0,
+    Service: 0,
+  });
+  const [feedback, setFeedback] = useState("");
+  const currentStatus = 1; // 0..3
 
   const toggle = (s: string) =>
     setSelected((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
