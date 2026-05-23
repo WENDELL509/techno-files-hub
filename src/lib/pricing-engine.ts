@@ -96,7 +96,7 @@ const CONFIG = {
   }
 };
 
-class SurveyPricingEngine {
+export class SurveyPricingEngine {
   
   /**
    * Calculates the Base Isolation Survey Cost using exact tiered logic limits
